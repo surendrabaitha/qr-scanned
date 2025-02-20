@@ -1,42 +1,38 @@
-const video = document.createElement("video");
-const canvasElement = document.createElement("canvas");
-const canvas = canvasElement.getContext("2d", { willReadFrequently: true }); // Optimization added
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-// Get user camera
+// Request camera access
 navigator.mediaDevices
   .getUserMedia({ video: { facingMode: "environment" } })
   .then((stream) => {
     video.srcObject = stream;
-    video.setAttribute("playsinline", true);
-    video.play();
-
-    requestAnimationFrame(scanQRCode);
+    video.play().catch((err) => console.error("Video play error:", err));
+    scanQRCode(); // Start scanning
   })
-  .catch((err) => {
-    console.error("Error accessing camera: ", err);
-  });
+  .catch((err) => console.error("Error accessing camera:", err));
 
 function scanQRCode() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    canvasElement.width = video.videoWidth;
-    canvasElement.height = video.videoHeight;
-    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-
-    const imageData = canvas.getImageData(
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: "dontInvert",
-    });
-
-    if (code) {
-      console.log("QR Code Data:", code.data);
-      window.location.href = code.data; // Redirect to scanned QR Code URL
-    }
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+    requestAnimationFrame(scanQRCode);
+    return;
   }
 
-  requestAnimationFrame(scanQRCode);
+  // Set canvas size to match video
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  // Draw video frame on canvas
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Scan QR code
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+  if (code) {
+    console.log("QR Code Detected: ", code.data);
+    window.location.href = code.data; // Redirect to the scanned URL
+  } else {
+    requestAnimationFrame(scanQRCode);
+  }
 }
