@@ -1,6 +1,6 @@
 const video = document.createElement("video");
 const canvasElement = document.createElement("canvas");
-const canvas = canvasElement.getContext("2d");
+const canvas = canvasElement.getContext("2d", { willReadFrequently: true }); // Optimization added
 
 // Get user camera
 navigator.mediaDevices
