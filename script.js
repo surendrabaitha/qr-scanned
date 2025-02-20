@@ -1,39 +1,41 @@
-const video = document.getElementById("camera-feed");
-const canvas = document.getElementById("qr-canvas");
-const ctx = canvas.getContext("2d");
+const video = document.createElement("video");
+const canvasElement = document.createElement("canvas");
+const canvas = canvasElement.getContext("2d");
 
-// Access camera
+// Get user camera
 navigator.mediaDevices
   .getUserMedia({ video: { facingMode: "environment" } })
   .then((stream) => {
     video.srcObject = stream;
     video.setAttribute("playsinline", true);
     video.play();
-    scanQRCode();
+
+    requestAnimationFrame(scanQRCode);
+  })
+  .catch((err) => {
+    console.error("Error accessing camera: ", err);
   });
 
-// Function to scan QR code
 function scanQRCode() {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvasElement.width = video.videoWidth;
+    canvasElement.height = video.videoHeight;
+    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
 
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
+    const imageData = canvas.getImageData(
+      0,
+      0,
+      canvasElement.width,
+      canvasElement.height
+    );
+    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: "dontInvert",
+    });
 
-  if (qrCode) {
-    const { topLeftCorner, bottomRightCorner } = qrCode.location;
-
-    // Calculate QR position (left, right, center)
-    const position =
-      topLeftCorner.x < canvas.width / 3
-        ? "left"
-        : topLeftCorner.x > (2 * canvas.width) / 3
-        ? "right"
-        : "center";
-
-    // Redirect with position data
-    window.location.href = `video.html?position=${position}`;
+    if (code) {
+      console.log("QR Code Data:", code.data);
+      window.location.href = code.data; // Redirect to scanned QR Code URL
+    }
   }
 
   requestAnimationFrame(scanQRCode);
