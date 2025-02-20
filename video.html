@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Play Video</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <video id="video-player" autoplay controls>
+      <source src="sample.mp4" type="video/mp4" />
+    </video>
+
+    <script>
+      // Get QR position from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const position = urlParams.get("position");
+
+      // Position video based on QR position
+      const videoPlayer = document.getElementById("video-player");
+      videoPlayer.style.position = "absolute";
+      videoPlayer.style.width = "300px";
+
+      if (position === "left") {
+        videoPlayer.style.left = "10px";
+        videoPlayer.style.bottom = "10px";
+      } else if (position === "right") {
+        videoPlayer.style.right = "10px";
+        videoPlayer.style.bottom = "10px";
+      } else {
+        videoPlayer.style.left = "50%";
+        videoPlayer.style.transform = "translateX(-50%)";
+        videoPlayer.style.bottom = "10px";
+      }
+    </script>
+  </body>
+</html>

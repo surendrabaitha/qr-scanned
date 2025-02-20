@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Scanner</title>
+    <!-- <script src="jsQR.js"></script> -->
+    <script src="
+https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js
+"></script>
+
+    <!-- QR Scanner Library -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="scanner-container">
+      <video id="camera-feed" autoplay></video>
+      <canvas id="qr-canvas"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
